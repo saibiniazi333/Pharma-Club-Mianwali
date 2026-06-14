@@ -94,7 +94,7 @@
         .form-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:14px; }
         .btn-row { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
         .table-wrapper { overflow-x:auto; border-radius: var(--radius-sm); border:1px solid var(--border); margin-top:10px; }
-        table { width:100%; border-collapse:collapse; font-size:0.9rem; min-width:600px; }
+        table { width:100%; border-collapse:collapse; font-size:0.9rem; min-width:700px; }
         th { background:#f8fafb; padding:10px 12px; text-align:left; font-weight:700; font-size:0.75rem;
             text-transform:uppercase; color: var(--text-secondary); border-bottom:2px solid var(--border); }
         td { padding:10px 12px; border-bottom:1px solid #edf1f4; }
@@ -160,7 +160,6 @@
                 </div>
                 <div class="error-msg" id="loginError">Invalid username or password.</div>
                 <button class="btn btn-primary" onclick="login()">Log In</button>
-                <!-- No hints shown -->
             </div>
         </div>
     </div>
@@ -205,7 +204,16 @@
                 </div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Territory</th><th>Actions</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Territory</th>
+                                <th>Password</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                         <tbody id="repsTableBody"></tbody>
                     </table>
                 </div>
@@ -254,7 +262,7 @@
                         <div class="form-group"><label>Company</label><input type="text" id="repCompany"></div>
                         <div class="form-group"><label>Blood Group</label><input type="text" id="repBloodGroup"></div>
                         <div class="form-group"><label>Address</label><textarea id="repAddress" rows="2"></textarea></div>
-                        <div class="form-group"><label>Password *</label><input type="password" id="repPassword" required></div>
+                        <div class="form-group"><label>Password *</label><input type="text" id="repPassword" required></div>
                     </div>
                     <div class="btn-row">
                         <button type="submit" class="btn btn-primary">✅ Register</button>
@@ -336,31 +344,37 @@
         </div>
     </div>
 
-    <!-- MODALS (edit rep / donation) -->
+    <!-- EDIT REP MODAL (admin only) -->
     <div class="modal-overlay" id="editRepModal" style="display:none;">
         <div class="modal">
-            <h3>Edit Rep</h3>
-            <form onsubmit="saveRepEdit(event)"><input type="hidden" id="editRepIndex">
+            <h3>Edit Medical Rep</h3>
+            <form onsubmit="saveRepEdit(event)">
+                <input type="hidden" id="editRepIndex">
                 <div class="form-grid">
-                    <div class="form-group"><label>ID</label><input type="text" id="editRepId" required></div>
-                    <div class="form-group"><label>Name</label><input type="text" id="editRepName" required></div>
+                    <div class="form-group"><label>Rep ID</label><input type="text" id="editRepId" required></div>
+                    <div class="form-group"><label>Full Name</label><input type="text" id="editRepName" required></div>
                     <div class="form-group"><label>Phone</label><input type="tel" id="editRepPhone" required></div>
                     <div class="form-group"><label>Email</label><input type="email" id="editRepEmail"></div>
                     <div class="form-group"><label>Territory</label><input type="text" id="editRepTerritory" required></div>
                     <div class="form-group"><label>Company</label><input type="text" id="editRepCompany"></div>
                     <div class="form-group"><label>Blood Group</label><input type="text" id="editRepBloodGroup"></div>
-                    <div class="form-group"><label>Address</label><textarea id="editRepAddress"></textarea></div>
+                    <div class="form-group"><label>Address</label><textarea id="editRepAddress" rows="2"></textarea></div>
+                    <div class="form-group"><label>Password</label><input type="text" id="editRepPassword" required></div>
                 </div>
-                <div class="btn-row"><button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-outline" onclick="document.getElementById('editRepModal').style.display='none'">Cancel</button></div>
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('editRepModal').style.display='none'">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- EDIT DONATION MODAL -->
     <div class="modal-overlay" id="editDonationModal" style="display:none;">
         <div class="modal">
             <h3>Edit Donation</h3>
-            <form onsubmit="saveDonationEdit(event)"><input type="hidden" id="editDonationIndex">
+            <form onsubmit="saveDonationEdit(event)">
+                <input type="hidden" id="editDonationIndex">
                 <div class="form-grid">
                     <div class="form-group"><label>ID</label><input type="text" id="editDonationId" required></div>
                     <div class="form-group"><label>Rep</label><select id="editDonationRepSelect" required></select></div>
@@ -370,8 +384,10 @@
                     <div class="form-group"><label>Status</label><select id="editDonationStatus"><option>Paid</option><option>Pending</option><option>Cancelled</option></select></div>
                     <div class="form-group"><label>Notes</label><textarea id="editDonationNotes"></textarea></div>
                 </div>
-                <div class="btn-row"><button type="submit" class="btn btn-accent">Save</button>
-                <button type="button" class="btn btn-outline" onclick="document.getElementById('editDonationModal').style.display='none'">Cancel</button></div>
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-accent">💾 Save Changes</button>
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('editDonationModal').style.display='none'">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
@@ -568,16 +584,21 @@
             tbody.innerHTML = filtered.map((r, i) => {
                 const globalIdx = reps.indexOf(r);
                 return `<tr>
-                    <td>${escapeHTML(r.id)}</td><td>${escapeHTML(r.name)}</td><td>${escapeHTML(r.phone)}</td>
+                    <td>${escapeHTML(r.id)}</td>
+                    <td>${escapeHTML(r.name)}</td>
+                    <td>${escapeHTML(r.phone)}</td>
                     <td>${escapeHTML(r.territory)}</td>
-                    <td><button class="btn btn-ghost btn-sm" onclick="editRep(${globalIdx})">✏️</button>
-                    <button class="btn btn-ghost danger btn-sm" onclick="deleteRep(${globalIdx})">🗑️</button></td>
+                    <td><strong>${escapeHTML(r.password)}</strong></td>
+                    <td>
+                        <button class="btn btn-ghost btn-sm" onclick="editRep(${globalIdx})">✏️</button>
+                        <button class="btn btn-ghost danger btn-sm" onclick="deleteRep(${globalIdx})">🗑️</button>
+                    </td>
                 </tr>`;
             }).join('');
-            // Territory filter update
+            // Update territory filter
             const territories = [...new Set(reps.map(r => r.territory))].sort();
             const sel = document.getElementById('repTerritoryFilter');
-            sel.innerHTML = '<option value="">All Territories</option>' + territories.map(t => `<option>${t}</option>`).join('');
+            if (sel) sel.innerHTML = '<option value="">All Territories</option>' + territories.map(t => `<option>${t}</option>`).join('');
         }
 
         function handleRepSubmit(e) {
@@ -602,6 +623,7 @@
             clearRepForm(); renderRepsTable(); populateRepDropdowns();
             switchTab('tab-reps'); showToast('Rep registered','success');
         }
+
         function clearRepForm() { document.getElementById('repForm').reset(); }
 
         function editRep(index) {
@@ -610,13 +632,15 @@
             document.getElementById('editRepId').value = rep.id;
             document.getElementById('editRepName').value = rep.name;
             document.getElementById('editRepPhone').value = rep.phone;
-            document.getElementById('editRepEmail').value = rep.email||'';
+            document.getElementById('editRepEmail').value = rep.email || '';
             document.getElementById('editRepTerritory').value = rep.territory;
-            document.getElementById('editRepCompany').value = rep.company||'';
-            document.getElementById('editRepBloodGroup').value = rep.bloodGroup||'';
-            document.getElementById('editRepAddress').value = rep.address||'';
+            document.getElementById('editRepCompany').value = rep.company || '';
+            document.getElementById('editRepBloodGroup').value = rep.bloodGroup || '';
+            document.getElementById('editRepAddress').value = rep.address || '';
+            document.getElementById('editRepPassword').value = rep.password || '';
             document.getElementById('editRepModal').style.display = 'flex';
         }
+
         function saveRepEdit(e) {
             e.preventDefault();
             const reps = getReps();
@@ -629,12 +653,14 @@
                 territory: document.getElementById('editRepTerritory').value.trim(),
                 company: document.getElementById('editRepCompany').value.trim(),
                 bloodGroup: document.getElementById('editRepBloodGroup').value.trim(),
-                address: document.getElementById('editRepAddress').value.trim()
+                address: document.getElementById('editRepAddress').value.trim(),
+                password: document.getElementById('editRepPassword').value.trim()
             };
             reps[idx] = updated; saveReps(reps);
             document.getElementById('editRepModal').style.display = 'none';
             renderRepsTable(); showToast('Rep updated','success');
         }
+
         function deleteRep(index) {
             if (!confirm('Delete this rep?')) return;
             const reps = getReps(); reps.splice(index,1); saveReps(reps);
@@ -652,7 +678,7 @@
                 (!status || d.status===status)
             );
             const tbody = document.getElementById('donationsTableBody');
-            tbody.innerHTML = filtered.map((d, i) => {
+            tbody.innerHTML = filtered.map((d) => {
                 const globalIdx = donations.indexOf(d);
                 return `<tr>
                     <td>${escapeHTML(d.id)}</td><td>${escapeHTML(repMap[d.repId]?.name||'Unknown')}</td>
@@ -663,6 +689,7 @@
                 </tr>`;
             }).join('');
         }
+
         function handleDonationSubmit(e) {
             e.preventDefault();
             const donation = {
@@ -679,6 +706,7 @@
             document.getElementById('donationForm').reset();
             renderDonationsTable(); showToast('Donation recorded','success');
         }
+
         function editDonation(index) {
             const d = getDonations()[index];
             document.getElementById('editDonationIndex').value = index;
@@ -692,6 +720,7 @@
             document.getElementById('editDonationRepSelect').value = d.repId;
             document.getElementById('editDonationModal').style.display = 'flex';
         }
+
         function saveDonationEdit(e) {
             e.preventDefault();
             const donations = getDonations();
@@ -705,9 +734,11 @@
                 status: document.getElementById('editDonationStatus').value,
                 notes: document.getElementById('editDonationNotes').value.trim()
             };
-            saveDonations(donations); document.getElementById('editDonationModal').style.display='none';
+            saveDonations(donations);
+            document.getElementById('editDonationModal').style.display='none';
             renderDonationsTable(); showToast('Donation updated','success');
         }
+
         function deleteDonation(index) {
             if (!confirm('Delete donation?')) return;
             const donations = getDonations(); donations.splice(index,1); saveDonations(donations);
@@ -733,6 +764,7 @@
                 <td><button class="btn btn-ghost danger btn-sm" onclick="deleteMaterial('${m.id}')">🗑️</button></td>
             </tr>`).join('');
         }
+
         function addMaterial() {
             const name = prompt('Item name:');
             if (!name) return;
@@ -742,6 +774,7 @@
             mats.push({ id:'MAT-'+String(mats.length+1).padStart(3,'0'), name, quantity:qty, available:qty });
             saveMaterials(mats); renderMaterialsTable(); showToast('Item added','success');
         }
+
         function deleteMaterial(id) {
             if (!confirm('Delete item?')) return;
             saveMaterials(getMaterials().filter(m => m.id!==id));
@@ -755,6 +788,7 @@
             const avail = getMaterials().filter(m => m.available>0);
             itemSelect.innerHTML = avail.map(m => `<option value="${m.id}">${m.name} (${m.available} left)</option>`).join('');
         }
+
         function recordBorrow(e) {
             e.preventDefault();
             const member = document.getElementById('borrowMember').value;
@@ -762,30 +796,36 @@
             const pickup = document.getElementById('borrowPickup').value;
             const returnDate = document.getElementById('borrowReturn').value;
             if (!member || !item || !pickup || !returnDate) return;
-
-            const mats = getMaterials(); const mat = mats.find(m => m.id===item);
+            const mats = getMaterials();
+            const mat = mats.find(m => m.id===item);
             if (!mat || mat.available<1) { showToast('Not available','error'); return; }
             mat.available--; saveMaterials(mats);
-
             const loans = getLoans();
             loans.push({ id:'LOAN-'+Date.now(), memberId:member, materialId:item, pickupDate:pickup, expectedReturn:returnDate, status:'Borrowed' });
             saveLoans(loans);
-            document.getElementById('borrowPickup').value=''; document.getElementById('borrowReturn').value='';
+            document.getElementById('borrowPickup').value='';
+            document.getElementById('borrowReturn').value='';
             populateBorrowForm(); renderBorrowedItems(); renderMaterialsTable();
             showToast('Borrowed successfully','success');
         }
+
         function returnItem(loanId) {
-            const loans = getLoans(); const idx = loans.findIndex(l => l.id===loanId);
+            const loans = getLoans();
+            const idx = loans.findIndex(l => l.id===loanId);
             if (idx===-1) return;
-            loans[idx].status='Returned'; loans[idx].actualReturn=new Date().toISOString().split('T')[0];
-            const mats = getMaterials(); const mat = mats.find(m => m.id===loans[idx].materialId);
+            loans[idx].status='Returned';
+            loans[idx].actualReturn=new Date().toISOString().split('T')[0];
+            const mats = getMaterials();
+            const mat = mats.find(m => m.id===loans[idx].materialId);
             if (mat) mat.available++;
             saveMaterials(mats); saveLoans(loans);
             renderBorrowedItems(); renderMaterialsTable(); showToast('Returned','success');
         }
+
         function renderBorrowedItems() {
             const loans = getLoans().filter(l => l.status==='Borrowed');
-            const reps = getReps(); const mats = getMaterials();
+            const reps = getReps();
+            const mats = getMaterials();
             const user = getCurrentUser();
             const tbody = document.getElementById('borrowedTableBody');
             tbody.innerHTML = loans.map(loan => {
@@ -803,7 +843,10 @@
         }
 
         function updateAllUI() {
-            renderRepsTable(); renderDonationsTable(); renderMaterialsTable(); renderBorrowedItems();
+            renderRepsTable();
+            renderDonationsTable();
+            renderMaterialsTable();
+            renderBorrowedItems();
             if (getCurrentUser()?.role==='admin') populateBorrowForm();
             populateRepDropdowns();
         }
@@ -819,7 +862,7 @@
         // Tab listeners
         document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
-        // Initialize date field
+        // Set default date
         document.getElementById('donationDate').value = new Date().toISOString().split('T')[0];
     </script>
 </body>
